@@ -5,21 +5,12 @@
 /* if moveup=' ' place letter set to true
 else set to true and turn if turn = ' ' etc.
 */
+void recPaintRoom(RoomData room, int row, int col, char let, int distanceFromA );
 
-int findDistance(char **roomArr, int row, int col, int ai, int aj, int distanceFromA);
-void recPaintRoom(char **roomArr, int row, int col, int distanceFromA /* feel free to remove/add any other parameters here*/);
-/* declare any other helper functions here*/
-void moveUp(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo);
-void moveDown(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo);
-void turnRight(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo);
-void turnLeft(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo);
-void placeLet(char **roomArr, int row, int col, int distanceFromA, bool visited);
-/* printName
- * input: none
- * output: none
- *
- * Prints name the student who worked on this solution
- */
+
+
+ /* Prints name the student who worked on this solution*/
+ 
 void printName()
 {
   /* TODO : Fill in your name*/
@@ -27,218 +18,93 @@ void printName()
   printf("<Ryan Reddoch>\n");
 }
 
-/* TODO
- * paintRoom
- * input: the room to process
- * output: N/A
- *
+/*
  * This non-recursive function is called by the driver and it makes the initial
  * call to recursive function recPaintRoom.
  */
 void paintRoom(RoomData room)
 {
-  /* Call any other helper functions (a helper function to find the location of
-   * 'A' in room may be handy) */
+ 
 
-  char **roomArr = room.roomArray; // change to a more manageable name
+  /* change room.numRows to a more manageable name*/
   int nrows = room.numrows;
   int ncols = room.numcols;
   int i, j;
-  int row; // initial staring row for A
-  int col; // initial starting col for A
-int distanceFromA;
+  int row; /* initial staring row for A*/
+  int col; /* initial starting col for A*/
+  char let = 'A';
+  int distanceFromA;
+ 
+ /*This finds finds 'A' and pasees to recPaintRoom   */
   for (i = 0; i < nrows; i++)
   {
     for (j = 0; j < ncols; j++)
     {
-      if (roomArr[i][j] == 'A')
+
+      if (room.roomArray[i][j] == 'A')
       {
 
         row = i;
         col = j;
-      int ai=row;
-      int  aj=col;
-     
-     
-        recPaintRoom(roomArr, row, col, distanceFromA);
+
+        distanceFromA = 0;
+
+          /* My call to my recursive cases*/
+      recPaintRoom(room, row, col, let, distanceFromA);
       }
     }
-       
   }
 }
+  
 
-/* Base cases: All places visited boolean set to true.or unreachable*/
-
-/* Recursive cases: */
-
-/* Call your recursive function here */
-// recPaintRoom( room,  initial row value ,  initial col value ,
-// initial value for distanceFromA */  );
-
-/* TODO
+/*
  * recPaintRoom
  * input: the room to process, the row and column of the current location
  * being explored, the distance traveled from 'A' output: N/A
  */
-void recPaintRoom(char **roomArr, int row, int col, int distanceFromA /* feel free to remove/add any other parameters here*/)
-{
-  bool visited;
-  bool noGo;
-  noGo = false;
-  visited = false;
-int aRow=row;
-int aCol=col;
-
-distanceFromA=abs((row-aRow)+(col-aCol));
- 
-
-  moveUp(roomArr, row, col, distanceFromA, visited, noGo);
-  moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-  turnRight(roomArr, row, col, distanceFromA, visited, noGo);
-  turnLeft(roomArr, row, col, distanceFromA, visited, noGo);
-}
-
-/* My functions */
-
-/* ///////////////// MOVE UP //////////////////// */
-
-void moveUp(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo)
-{
-  col += 1;
-
-  /* move forward in the array if space else try other options */
-
-  if (roomArr[row][col] == ' ')
-  {
-  
-     placeLet(roomArr, row, col, distanceFromA, visited);
-    turnLeft(roomArr, row, col, distanceFromA, visited, noGo);
-    turnRight(roomArr, row, col, distanceFromA, visited, noGo);
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-
-  if (roomArr[row][col] == '*')
-  {
-    col -= 1;
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-  else
-  {
-
-    moveUp(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-}
-
-////////////////////////////////////////
-
-/*MOVE DOWN BY DECREASING COL*/
-void moveDown(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo)
+void recPaintRoom(RoomData room, int row, int col, char let, int distanceFromA )
 {
 
-  // move down  by decreasing column  //
-  col -= 1;
-
-  if (roomArr[row][col] == ' ')
+  // Check to see if array is out of bounds or '*'//
+   if (row < 0 || row >= room.numrows || col < 0 || col >= room.numcols || room.roomArray[row][col] == '*')
   {
-    placeLet(roomArr, row, col, distanceFromA, visited);
-    turnRight(roomArr, row, col, distanceFromA, visited, noGo);
-    turnLeft(roomArr, row, col, distanceFromA, visited, noGo);
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-
-  if (roomArr[row][col] == '*')
-  {
-
-    col += 1;
     return;
   }
 
-  else
+/* This will place letters including the inital 'A' because DFA is 0 at first */
+  else if (distanceFromA < 26 || room.roomArray[row][col] > distanceFromA + 'A')
   {
-
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
+    room.roomArray[row][col] = distanceFromA + 'A';
   }
+  else 
+  {
+    room.roomArray[row][col] = 'Z';
+  }
+
+  /* Recursive cases: */
+  /* Moving up*/
+  if (room.roomArray[row - 1][col] == ' ' || room.roomArray[row][col] + 1 < room.roomArray[row - 1][col])
+  {
+    recPaintRoom(room, row - 1, col, let, distanceFromA + 1);
+  }
+
+  /* Moving down*/
+  if (room.roomArray[row + 1][col] == ' ' || room.roomArray[row][col] + 1 < room.roomArray[row + 1][col])
+  {
+    recPaintRoom(room, row + 1, col, let, distanceFromA + 1);
+  }
+
+  /* Moving to the right*/
+  if (room.roomArray[row][col + 1] == ' ' || room.roomArray[row][col] + 1 < room.roomArray[row][col + 1])
+  {
+    recPaintRoom(room, row, col + 1, let, distanceFromA + 1);
+  }
+
+  /* Moving to the left */
+  if (room.roomArray[row][col - 1] == ' ' || room.roomArray[row][col] + 1 < room.roomArray[row][col - 1])
+  {
+    recPaintRoom(room, row, col - 1, let, distanceFromA + 1);
+  }
+
+  return;
 }
-
-//////////////////////////////////////////
-/* TURN LEFT BY DECREASING ROW*/
-
-void turnLeft(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo)
-{
-
-  // move left by deceeasing row  //
-  row -= 1;
-
-  if (roomArr[row][col] == ' ')
-  {
-    placeLet(roomArr, row, col, distanceFromA, visited);
-    turnRight(roomArr, row, col, distanceFromA, visited, noGo);
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-    moveUp(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-
-  if (roomArr[row][col] == '*')
-  {
-
-    row += 1;
-    return;
-  }
-  else
-  {
-    turnLeft(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-}
-
-/* TURN RIGHT INCREASE ROW*/
-void turnRight(char **roomArr, int row, int col, int distanceFromA, bool visited, bool noGo)
-{
-  // move right by increase row //
-  row += 1;
-
-  if (roomArr[row][col] == ' ')
-  {
-    placeLet(roomArr, row, col, distanceFromA, visited);
-    turnLeft(roomArr, row, col, distanceFromA, visited, noGo);
-    moveDown(roomArr, row, col, distanceFromA, visited, noGo);
-    moveUp(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-  if (roomArr[row][col] == '*')
-  {
-    row -= 1;
-    return;
-  }
-  else
-  {
-    turnRight(roomArr, row, col, distanceFromA, visited, noGo);
-  }
-}
-
-/* PLACE LETTER*/
-void placeLet(char **roomArr, int row, int col, int distanceFromA, bool visited)
-{
-  /* if space place letter */
-
-char let;
-
-   let = 'B'+distanceFromA;
-printf("%d",distanceFromA);
-
-
-
-
-    if (let <= 'Z')
-    {
-      roomArr[row][col] = let;
-    }
-    else if (let >90)
-    {
-    
-     roomArr[row][col] = 'Z';
-      
-    }
-       
-}
-//findDistance(char **roomArr, int row, int col, int ai, int aj, int distanceFromA){
-//distanceFromA=abs()
-
-//}
